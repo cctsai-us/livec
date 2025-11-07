@@ -1,0 +1,35 @@
+version: '3.8'
+
+# Production-specific configuration
+services:
+  api:
+    restart: always
+    environment:
+      - DEBUG=False
+    command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+
+  celery_worker:
+    restart: always
+    deploy:
+      replicas: 3
+
+  celery_beat:
+    restart: always
+
+  mysql:
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    restart: always
+
+  rabbitmq:
+    restart: always
+
+  nginx:
+    restart: always
+
+  # Remove flower in production
+  flower:
+    profiles:
+      - monitoring

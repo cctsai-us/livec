@@ -1,0 +1,25 @@
+version: '3.8'
+
+# Development-specific overrides
+services:
+  api:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - DEBUG=True
+      - LOG_LEVEL=DEBUG
+
+  celery_worker:
+    command: celery -A app.tasks.celery_app worker --loglevel=debug
+
+  # Add Flutter web dev server (optional)
+  frontend_dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: live_commerce_frontend_dev
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/app
+    networks:
+      - live_commerce_network

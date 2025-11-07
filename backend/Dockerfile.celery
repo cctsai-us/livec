@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    default-libmysqlclient-dev \
+    pkg-config \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements/base.txt requirements/base.txt
+COPY requirements/prod.txt requirements/prod.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements/prod.txt
+
+# Copy application
+COPY . .
+
+# Run Celery worker
+CMD ["celery", "-A", "app.tasks.celery_app", "worker", "--loglevel=info"]

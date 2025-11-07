@@ -1,0 +1,35 @@
+# Core dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.25
+aiomysql==0.2.0
+alembic==1.13.1
+
+# Redis
+redis==5.0.1
+
+# Message Queue
+celery==5.3.6
+kombu==5.3.5
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# HTTP Client
+httpx==0.26.0
+
+# Cloudflare
+cloudflare==2.19.4
+boto3==1.34.34  # For R2 (S3-compatible storage)
+
+# WebSocket
+websockets==12.0
+
+# Utilities
+python-dotenv==1.0.0

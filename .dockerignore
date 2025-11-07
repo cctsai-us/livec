@@ -1,0 +1,62 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv/
+env/
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+
+# Environment
+.env.example
+
+# Logs
+*.log
+logs/
+
+# Flutter (when building backend)
+frontend/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Backups
+*.bak
+*.backup
+
+# Temporary
+*.tmp
+tmp/
+temp/
