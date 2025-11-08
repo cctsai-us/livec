@@ -533,18 +533,355 @@ docker-compose down -v
 - Git
 
 ### Frontend Development
-- Flutter SDK 3.16+
-- Dart 3.2+
+- Flutter SDK 3.35.7+ (tested with 3.35.7)
+- Dart 3.9.2+
 - Android Studio (for Android)
-- Xcode (for iOS - macOS only)
+- Xcode 16.1+ (for iOS - macOS only, **avoid beta versions like 26.1**)
 - VS Code or IntelliJ IDEA
 - Chrome (for web testing)
+
+#### Android Development Requirements
+- **Android Studio**: 2025.2+
+- **Android SDK**: 36.1.0+
+  - Location: `~/Library/Android/sdk` (macOS) or Android Studio SDK path
+  - Required components:
+    - Android SDK Platform-Tools
+    - Android SDK Build-Tools 35.0.0+
+    - Android SDK Platform (API 35)
+    - NDK (Side by side) 27.0.12077973
+    - CMake 3.22.1+
+- **Java**: OpenJDK 21+ (bundled with Android Studio)
+- **Gradle**: 8.0+ (managed by Flutter)
+
+#### iOS Development Requirements (macOS only)
+- **Xcode**: 16.1 stable (Build 16B40)
+  - **IMPORTANT**: Use stable Xcode, not beta versions
+  - Xcode 26.1 Beta has SDK versioning issues - avoid it
+  - Download from: Mac App Store or [Apple Developer Downloads](https://developer.apple.com/download/all/)
+- **iOS SDK**: 18.1+
+  - Download via Xcode > Settings > Platforms
+  - Required for building to both simulator and physical devices
+- **CocoaPods**: 1.16.2+
+  - Install via Homebrew: `brew install cocoapods`
+  - Used for iOS dependency management
+- **Command Line Tools**:
+  - Install: `xcode-select --install`
+  - Verify: `xcode-select -p`
+- **Apple Developer Account**: Required for physical device deployment
+  - Free account: Development only
+  - Paid account ($99/year): App Store distribution
 
 ### Minimum System Requirements
 - 16GB RAM (recommended)
 - 4+ CPU cores
 - 50GB free disk space
 - macOS, Linux, or Windows
+
+---
+
+## Building and Compiling Mobile Apps
+
+### Initial Setup
+
+#### 1. Install Flutter
+```bash
+# Download Flutter SDK
+git clone https://github.com/flutter/flutter.git -b stable
+export PATH="$PATH:`pwd`/flutter/bin"
+
+# Verify installation
+flutter doctor -v
+```
+
+#### 2. Install Dependencies
+```bash
+cd frontend
+flutter pub get
+```
+
+### Android Build Configuration
+
+#### Setup Android SDK Path
+The Android SDK must be properly configured in `android/local.properties`:
+
+```properties
+sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+flutter.sdk=/path/to/flutter
+flutter.buildMode=debug
+flutter.versionName=1.0.0
+flutter.versionCode=1
+```
+
+**Important:** Use the Android Studio SDK path (`~/Library/Android/sdk`), NOT Homebrew paths like `/opt/homebrew/Caskroom/android-platform-tools/`.
+
+#### Accept Android SDK Licenses
+```bash
+# Navigate to Android SDK tools
+cd ~/Library/Android/sdk/cmdline-tools/latest/bin
+
+# Accept all licenses
+./sdkmanager --licenses
+```
+
+### Building for Android
+
+#### Method 1: Flutter Command (Recommended)
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+
+# List connected devices
+flutter devices
+
+# Build and run on connected Android device
+flutter run -d <DEVICE_ID>
+
+# Build release APK
+flutter build apk --release
+
+# Build release App Bundle (for Play Store)
+flutter build appbundle --release
+```
+
+#### Method 2: Android Studio
+1. Open `frontend/android` in Android Studio
+2. Connect Android device via USB
+3. Enable Developer Mode on device
+4. Click Run ▶️ button
+
+#### Build Output Locations
+- **Debug APK**: `build/app/outputs/flutter-apk/app-debug.apk`
+- **Release APK**: `build/app/outputs/flutter-apk/app-release.apk`
+- **App Bundle**: `build/app/outputs/bundle/release/app-release.aab`
+
+### iOS Build Configuration
+
+#### Prerequisites Checklist
+- [ ] Xcode 16.1 stable installed (NOT beta)
+- [ ] iOS 18.1 SDK installed
+- [ ] CocoaPods installed
+- [ ] Command Line Tools installed
+- [ ] iOS device paired and trusted (for physical device)
+- [ ] Apple Developer account configured (for physical device)
+
+#### Step 1: Verify Xcode Installation
+```bash
+# Check Xcode version (should be 16.1, NOT 26.1)
+xcodebuild -version
+
+# Should output:
+# Xcode 16.1
+# Build version 16B40
+
+# Check command line tools path
+xcode-select -p
+# Should output: /Applications/Xcode.app/Contents/Developer
+
+# Check available iOS SDKs
+xcodebuild -showsdks | grep iOS
+# Should include: iOS 18.1
+```
+
+#### Step 2: Install CocoaPods
+```bash
+# Install via Homebrew (recommended)
+brew install cocoapods
+
+# Verify installation
+pod --version
+# Should output: 1.16.2 or higher
+```
+
+#### Step 3: Fix Xcode Project Configuration
+The Flutter iOS project needs to support both physical devices and simulators. Verify `ios/Runner.xcodeproj/project.pbxproj` includes:
+
+```
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+```
+
+If it shows only `iphoneos`, the simulator won't work.
+
+#### Step 4: Set Up Code Signing (Physical Device Only)
+
+1. Open Xcode workspace:
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+open ios/Runner.xcworkspace
+```
+
+2. In Xcode:
+   - Select **Runner** project in left sidebar
+   - Select **Runner** target
+   - Go to **Signing & Capabilities** tab
+   - Check **"Automatically manage signing"**
+   - Select your **Team** (Apple Developer account)
+   - Verify:
+     - Provisioning Profile: "Xcode Managed Profile"
+     - Signing Certificate: "Apple Development: Your Name"
+
+### Building for iOS
+
+#### Option 1: iOS Simulator
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+
+# List available simulators
+flutter devices
+
+# Run on specific simulator
+flutter run -d <SIMULATOR_ID>
+
+# Example:
+flutter run -d 927FD505-37F1-48F7-9158-26A324C0E684
+```
+
+**First build takes 60-90 seconds.** Subsequent builds with hot reload are instant.
+
+#### Option 2: Physical iPhone/iPad
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+
+# Connect iPhone via USB
+# Unlock iPhone and tap "Trust This Computer"
+
+# List connected devices
+flutter devices
+
+# Run on physical device
+flutter run -d <DEVICE_ID>
+
+# Example:
+flutter run -d 00008030-000329503450802E
+```
+
+**Note:** First time running on device:
+1. App installs on iPhone
+2. iPhone may show "Untrusted Developer" error
+3. Fix: Go to **Settings > General > VPN & Device Management**
+4. Tap your developer certificate
+5. Tap **Trust**
+6. Rerun `flutter run`
+
+#### Option 3: Build iOS Release (Requires Paid Apple Developer Account)
+```bash
+# Build for App Store distribution
+flutter build ipa --release
+
+# Output: build/ios/ipa/frontend.ipa
+```
+
+### Building for macOS Desktop
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+
+# Run on macOS
+flutter run -d macos
+
+# Build release app
+flutter build macos --release
+
+# Output: build/macos/Build/Products/Release/frontend.app
+```
+
+### Building for Web
+```bash
+cd ~/Documents/dev/live_commerce/frontend
+
+# Run development server
+flutter run -d chrome
+
+# Build production web app
+flutter build web --release
+
+# Output: build/web/
+```
+
+### Troubleshooting Common Issues
+
+#### Android Issues
+
+**Issue: "Android SDK license not accepted"**
+```bash
+# Solution: Accept licenses
+cd ~/Library/Android/sdk/cmdline-tools/latest/bin
+./sdkmanager --licenses
+```
+
+**Issue: "NDK not found"**
+```bash
+# Solution: Install NDK via Android Studio
+# Tools > SDK Manager > SDK Tools > NDK (Side by side)
+```
+
+**Issue: Wrong SDK path in local.properties**
+```bash
+# Solution: Update to Android Studio SDK path
+echo "sdk.dir=/Users/$(whoami)/Library/Android/sdk" > android/local.properties
+```
+
+#### iOS Issues
+
+**Issue: "iOS 26.1 is not installed" or "iOS X.X is not installed"**
+- **Cause:** Using Xcode beta with incorrect SDK versioning
+- **Solution:** Download stable Xcode 16.1 from Apple Developer Downloads
+- **Steps:**
+  1. Go to https://developer.apple.com/download/all/
+  2. Search for "Xcode 16.1" (NOT 26.1)
+  3. Download and install
+  4. Run: `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer`
+  5. Download iOS 18.1 SDK: Xcode > Settings > Platforms > GET iOS 18.1
+
+**Issue: "Unable to find destination matching simulator"**
+- **Cause:** Xcode project only supports `iphoneos` (physical devices)
+- **Solution:** Update `SUPPORTED_PLATFORMS` in `ios/Runner.xcodeproj/project.pbxproj`
+  ```bash
+  # Open project file and search for SUPPORTED_PLATFORMS
+  # Change from: SUPPORTED_PLATFORMS = iphoneos;
+  # Change to:   SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+  ```
+
+**Issue: "CocoaPods not installed"**
+```bash
+# Solution: Install CocoaPods
+brew install cocoapods
+```
+
+**Issue: "No development certificates available"**
+- **Cause:** iOS code signing not configured
+- **Solution:**
+  1. Open `ios/Runner.xcworkspace` in Xcode
+  2. Select Runner target > Signing & Capabilities
+  3. Check "Automatically manage signing"
+  4. Select your Apple Developer team
+
+**Issue: Ruby version too old for CocoaPods**
+```bash
+# System Ruby (2.6) is too old
+# Solution: Install via Homebrew (includes Ruby 3.4+)
+brew install cocoapods
+```
+
+### Performance Notes
+
+**Build Times (First Build):**
+- Android (Debug): ~120 seconds
+- iOS (Debug): ~90 seconds
+- macOS (Debug): ~30 seconds
+- Web (Debug): ~45 seconds
+
+**Hot Reload:** ~1-2 seconds (all platforms)
+
+**Installed App Sizes:**
+- Android APK: ~40-50 MB (debug), ~15-20 MB (release with ProGuard)
+- iOS IPA: ~50-60 MB (debug), ~25-35 MB (release)
+
+### Continuous Integration Notes
+
+For CI/CD pipelines (GitHub Actions, etc.):
+- Android: Requires Android SDK + NDK in CI environment
+- iOS: Requires macOS runner with Xcode 16.1+
+- Fastlane recommended for both platforms
+- Consider using Docker for Android builds
+- iOS builds require Apple Developer account secrets
 
 ---
 
@@ -649,5 +986,5 @@ Cloudflare Platform
 
 ---
 
-**Last Updated:** 2025-11-06
-**Version:** 1.0
+**Last Updated:** 2025-11-07
+**Version:** 1.1 - Added comprehensive iOS and Android build instructions
