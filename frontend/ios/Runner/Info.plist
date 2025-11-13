@@ -50,6 +50,12 @@
 		<key>ChannelID</key>
 		<string>2008477870</string>
 	</dict>
+	<key>FacebookAppID</key>
+	<string>806849805556043</string>
+	<key>FacebookClientToken</key>
+	<string>b6db19d8c4bcfa12aab35ef2b9bf6867</string>
+	<key>FacebookDisplayName</key>
+	<string>Yoii Live Commerce</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -60,10 +66,22 @@
 				<string>line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb806849805556043</string>
+			</array>
+		</dict>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>lineauth2</string>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
 	</array>
 </dict>
 </plist>

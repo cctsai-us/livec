@@ -111,6 +111,19 @@ class Settings:
     def line_channel_secret(self):
         return backend_config.LINE_CHANNEL_SECRET
 
+    # Social Authentication - Facebook
+    @property
+    def facebook_app_id(self):
+        return backend_config.FACEBOOK_APP_ID
+
+    @property
+    def facebook_app_secret(self):
+        return backend_config.FACEBOOK_APP_SECRET
+
+    @property
+    def facebook_client_token(self):
+        return getattr(backend_config, 'FACEBOOK_CLIENT_TOKEN', None)
+
 
 # Global settings instance
 settings = Settings()
