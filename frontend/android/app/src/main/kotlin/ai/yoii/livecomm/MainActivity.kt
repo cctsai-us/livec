@@ -1,4 +1,4 @@
-package com.example.frontend
+package ai.yoii.livecomm
 
 import io.flutter.embedding.android.FlutterActivity
 

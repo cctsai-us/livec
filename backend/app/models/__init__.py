@@ -8,6 +8,7 @@ from .stream_viewer import StreamViewer
 from .chat_message import ChatMessage
 from .stream_like import StreamLike
 from .session import Session
+from .login_history import LoginHistory
 
 __all__ = [
     "User",
@@ -17,4 +18,5 @@ __all__ = [
     "ChatMessage",
     "StreamLike",
     "Session",
+    "LoginHistory",
 ]

@@ -4,7 +4,7 @@ FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.v1 import streams
+from .api.v1 import streams, social_auth
 
 app = FastAPI(
     title="Live Commerce API",
@@ -23,6 +23,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(streams.router, prefix="/api/v1", tags=["Live Streams"])
+app.include_router(social_auth.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

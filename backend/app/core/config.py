@@ -1,79 +1,115 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
+"""
+Backward compatibility config wrapper
+Imports from backend/config/dev.py|qa.py|prod.py based on ENVIRONMENT
+"""
+from config import config as backend_config
 
 
-class Settings(BaseSettings):
-    """Application settings loaded from environment variables."""
+class Settings:
+    """Settings wrapper for backward compatibility with old code"""
 
     # Application
-    app_name: str = "Live Commerce"
-    debug: bool = True
+    @property
+    def app_name(self):
+        return getattr(backend_config, 'APP_NAME', 'Live Commerce')
+
+    @property
+    def debug(self):
+        return backend_config.DEBUG
+
+    @property
+    def api_base_url(self):
+        return backend_config.API_BASE_URL
 
     # Database
-    mysql_host: str = "localhost"
-    mysql_port: int = 3306
-    mysql_user: str = "root"
-    mysql_password: str = "password"
-    mysql_database: str = "live_commerce"
+    @property
+    def mysql_host(self):
+        return backend_config.MYSQL_HOST
+
+    @property
+    def mysql_port(self):
+        return backend_config.MYSQL_PORT
+
+    @property
+    def mysql_user(self):
+        return backend_config.MYSQL_USER
+
+    @property
+    def mysql_password(self):
+        return backend_config.MYSQL_PASSWORD
+
+    @property
+    def mysql_database(self):
+        return backend_config.MYSQL_DATABASE
 
     # Redis
-    redis_host: str = "localhost"
-    redis_port: int = 6379
-    redis_db: int = 0
+    @property
+    def redis_host(self):
+        return backend_config.REDIS_HOST
+
+    @property
+    def redis_port(self):
+        return backend_config.REDIS_PORT
+
+    @property
+    def redis_db(self):
+        return backend_config.REDIS_DB
 
     # RabbitMQ
-    rabbitmq_host: str = "localhost"
-    rabbitmq_port: int = 5672
-    rabbitmq_user: str = "guest"
-    rabbitmq_password: str = "guest"
+    @property
+    def rabbitmq_host(self):
+        return backend_config.RABBITMQ_HOST
+
+    @property
+    def rabbitmq_port(self):
+        return backend_config.RABBITMQ_PORT
+
+    @property
+    def rabbitmq_user(self):
+        return backend_config.RABBITMQ_USER
+
+    @property
+    def rabbitmq_password(self):
+        return backend_config.RABBITMQ_PASSWORD
 
     # JWT
-    secret_key: str
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
-    refresh_token_expire_days: int = 7
+    @property
+    def secret_key(self):
+        return backend_config.SECRET_KEY
+
+    @property
+    def algorithm(self):
+        return backend_config.ALGORITHM
+
+    @property
+    def access_token_expire_minutes(self):
+        return backend_config.ACCESS_TOKEN_EXPIRE_MINUTES
+
+    @property
+    def refresh_token_expire_days(self):
+        return backend_config.REFRESH_TOKEN_EXPIRE_DAYS
 
     # Cloudflare Stream
-    cloudflare_account_id: Optional[str] = None
-    cloudflare_stream_api_token: Optional[str] = None
-    cloudflare_stream_customer_code: Optional[str] = None
+    @property
+    def cloudflare_account_id(self):
+        return backend_config.CLOUDFLARE_ACCOUNT_ID
+
+    @property
+    def cloudflare_stream_api_token(self):
+        return backend_config.CLOUDFLARE_STREAM_API_TOKEN
+
+    @property
+    def cloudflare_stream_customer_code(self):
+        return backend_config.CLOUDFLARE_STREAM_CUSTOMER_CODE
 
     # Social Authentication - LINE
-    line_channel_id: Optional[str] = None
-    line_channel_secret: Optional[str] = None
+    @property
+    def line_channel_id(self):
+        return backend_config.LINE_CHANNEL_ID
 
-    # Social Authentication - Facebook
-    facebook_app_id: Optional[str] = None
-    facebook_app_secret: Optional[str] = None
-
-    # Social Authentication - Google
-    google_client_id: Optional[str] = None
-    google_client_secret: Optional[str] = None
-
-    # Social Authentication - Apple
-    apple_client_id: Optional[str] = None
-    apple_team_id: Optional[str] = None
-    apple_key_id: Optional[str] = None
-
-    # Email (SendGrid)
-    sendgrid_api_key: Optional[str] = None
-
-    # SMS (Twilio)
-    twilio_account_sid: Optional[str] = None
-    twilio_auth_token: Optional[str] = None
-    twilio_phone_number: Optional[str] = None
-
-    # Cloudflare R2 Storage (S3-compatible)
-    s3_endpoint_url: Optional[str] = None
-    s3_bucket_name: Optional[str] = None
-    s3_access_key: Optional[str] = None
-    s3_secret_key: Optional[str] = None
-    s3_region: Optional[str] = None
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-        extra = "ignore"  # Ignore extra environment variables
+    @property
+    def line_channel_secret(self):
+        return backend_config.LINE_CHANNEL_SECRET
 
 
 # Global settings instance

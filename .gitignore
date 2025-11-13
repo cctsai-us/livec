@@ -37,6 +37,12 @@ instance/
 .env.local
 .env.*.local
 
+# Backend config files - DO NOT COMMIT
+backend/config/env.py
+backend/config/dev.py
+backend/config/qa.py
+backend/config/prod.py
+
 # IDEs
 .vscode/
 .idea/
@@ -128,3 +134,18 @@ celerybeat.pid
 *.tmp
 tmp/
 temp/
+_temp/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Flutter generated files
+**/linux/flutter/generated_*.cc
+**/linux/flutter/generated_*.cmake
+**/windows/flutter/generated_*.cc
+**/windows/flutter/generated_*.cmake
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/ios/Podfile.lock
+**/macos/Podfile.lock

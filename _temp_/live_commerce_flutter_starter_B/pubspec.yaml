@@ -1,0 +1,26 @@
+name: live_commerce_flutter_starter
+description: TikTok-style Live Commerce UI (Flutter). Cloudflare Stream-ready placeholders.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=2.17.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.10
+  video_player: ^2.8.3
+  chewie: ^1.7.4
+  carousel_slider: ^4.2.1
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
