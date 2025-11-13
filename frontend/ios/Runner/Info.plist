@@ -83,5 +83,7 @@
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
 	</array>
+	<key>GIDClientID</key>
+	<string>852200937424-b3p5a7pn8qp8g190p48gg5p74k8v80sl.apps.googleusercontent.com</string>
 </dict>
 </plist>

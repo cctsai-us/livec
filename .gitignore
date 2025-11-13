@@ -90,6 +90,8 @@ flutter_*.log
 **/android/.idea
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+# Android sensitive configs with API keys
+**/android/**/res/values/strings.xml
 
 # Web
 **/web/flutter_service_worker.js

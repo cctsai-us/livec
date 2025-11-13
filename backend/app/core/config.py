@@ -124,6 +124,32 @@ class Settings:
     def facebook_client_token(self):
         return getattr(backend_config, 'FACEBOOK_CLIENT_TOKEN', None)
 
+    # Social Authentication - Google
+    @property
+    def google_client_id(self):
+        return backend_config.GOOGLE_CLIENT_ID
+
+    @property
+    def google_client_secret(self):
+        return backend_config.GOOGLE_CLIENT_SECRET
+
+    # SMS Configuration
+    @property
+    def sms_provider(self):
+        return getattr(backend_config, 'SMS_PROVIDER', 'mock')
+
+    @property
+    def aws_access_key_id(self):
+        return getattr(backend_config, 'AWS_ACCESS_KEY_ID', '')
+
+    @property
+    def aws_secret_access_key(self):
+        return getattr(backend_config, 'AWS_SECRET_ACCESS_KEY', '')
+
+    @property
+    def aws_region(self):
+        return getattr(backend_config, 'AWS_REGION', 'us-east-1')
+
 
 # Global settings instance
 settings = Settings()

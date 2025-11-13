@@ -10,6 +10,7 @@ from ...db.redis_client import redis_client
 from ...schemas.auth import LINELoginRequest, TokenResponse
 from ...controllers.social_auth_line import handle_line_login, handle_line_callback
 from ...controllers.social_auth_facebook import handle_facebook_login, handle_facebook_callback
+from ...controllers.social_auth_google import handle_google_login, handle_google_callback
 from ...views.social_auth import render_success_page, render_error_page
 
 router = APIRouter(prefix="/auth/social", tags=["Social Authentication"])
@@ -61,11 +62,34 @@ async def facebook_callback(request: Request, db: AsyncSession = Depends(get_db)
         return render_error_page(str(e))
 
 
+@router.post("/google", response_model=TokenResponse)
+async def google_login(
+    login_request: LINELoginRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    """Google native login endpoint"""
+    return await handle_google_login(login_request, request, db)
+
+
+@router.get("/google/callback")
+async def google_callback(request: Request, db: AsyncSession = Depends(get_db)):
+    """Google OAuth callback endpoint"""
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+
+    try:
+        await handle_google_callback(code, state)
+        return render_success_page("Google")
+    except Exception as e:
+        return render_error_page(str(e))
+
+
 @router.get("/session/{session_id}/status")
 async def check_session_status(session_id: str):
     """
     Polling endpoint for frontend to check if login completed.
-    Supports LINE and Facebook sessions.
+    Supports LINE, Facebook, and Google sessions.
     """
     try:
         print(f"[SESSION STATUS] Checking session: {session_id}")
@@ -77,6 +101,11 @@ async def check_session_status(session_id: str):
         # If not LINE, try Facebook
         if not session_data_str:
             session_key = f"facebook_session:{session_id}"
+            session_data_str = await redis_client.get(session_key)
+
+        # If not Facebook, try Google
+        if not session_data_str:
+            session_key = f"google_session:{session_id}"
             session_data_str = await redis_client.get(session_key)
 
         if not session_data_str:
@@ -99,11 +128,6 @@ async def check_session_status(session_id: str):
 
 
 # Placeholder endpoints
-@router.post("/google")
-async def google_login():
-    """Google login"""
-    pass
-
 @router.post("/apple")
 async def apple_login():
     """Apple login"""

@@ -22,7 +22,12 @@ class User(Base):
     password_hash = Column(String(255), nullable=True)  # Nullable for social-only users
 
     # Profile
+    first_name = Column(String(50), nullable=True)
+    last_name = Column(String(50), nullable=True)
+    nickname = Column(String(50), nullable=True)
     display_name = Column(String(100), nullable=False)
+    gender = Column(String(20), nullable=True)  # male, female, other, prefer_not_to_say
+    date_of_birth = Column(String(8), nullable=True)  # YYYYMMDD format
     avatar_url = Column(String(500), nullable=True)
     bio = Column(Text, nullable=True)
 

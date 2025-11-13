@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db.session import get_db as get_database_session
+from .db.redis_client import redis_client
 from .core.security import decode_token
 from .models.user import User
 
@@ -16,6 +17,10 @@ async def get_db() -> AsyncSession:
     """Database session dependency - use the one from db.session"""
     async for session in get_database_session():
         yield session
+
+async def get_redis():
+    """Redis client dependency"""
+    return redis_client.redis
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

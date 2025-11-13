@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Live Commerce</string>
+    <string name="app_name">ライブコマース</string>
     <string name="facebook_app_id">806849805556043</string>
     <string name="facebook_client_token">b6db19d8c4bcfa12aab35ef2b9bf6867</string>
     <string name="default_web_client_id">852200937424-lfl8n8gids182eetfnuro43fvfvfcum8.apps.googleusercontent.com</string>

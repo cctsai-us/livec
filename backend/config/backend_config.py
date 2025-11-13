@@ -91,6 +91,12 @@ class BackendConfig:
     S3_SECRET_KEY: str = getattr(env_module, 'S3_SECRET_KEY', '')
     S3_REGION: str = getattr(env_module, 'S3_REGION', '')
 
+    # SMS Configuration (AWS SNS)
+    SMS_PROVIDER: Optional[str] = getattr(env_module, 'SMS_PROVIDER', None) or None
+    AWS_ACCESS_KEY_ID: Optional[str] = getattr(env_module, 'AWS_ACCESS_KEY_ID', None) or None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = getattr(env_module, 'AWS_SECRET_ACCESS_KEY', None) or None
+    AWS_REGION: str = getattr(env_module, 'AWS_REGION', 'us-east-1')
+
     @property
     def database_url(self) -> str:
         """Construct database URL"""
