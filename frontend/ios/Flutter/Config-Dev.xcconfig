@@ -1,0 +1,6 @@
+// Development Environment - Social Authentication Configuration
+LINE_CHANNEL_ID = 2008477870
+FACEBOOK_APP_ID = 806849805556043
+FACEBOOK_CLIENT_TOKEN = b6db19d8c4bcfa12aab35ef2b9bf6867
+GOOGLE_CLIENT_ID = 852200937424-b3p5a7pn8qp8g190p48gg5p74k8v80sl.apps.googleusercontent.com
+GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.852200937424-b3p5a7pn8qp8g190p48gg5p74k8v80sl

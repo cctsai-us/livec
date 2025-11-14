@@ -48,12 +48,12 @@
 	<key>LineSDKConfig</key>
 	<dict>
 		<key>ChannelID</key>
-		<string>2008477870</string>
+		<string>$(LINE_CHANNEL_ID)</string>
 	</dict>
 	<key>FacebookAppID</key>
-	<string>806849805556043</string>
+	<string>$(FACEBOOK_APP_ID)</string>
 	<key>FacebookClientToken</key>
-	<string>b6db19d8c4bcfa12aab35ef2b9bf6867</string>
+	<string>$(FACEBOOK_CLIENT_TOKEN)</string>
 	<key>FacebookDisplayName</key>
 	<string>Yoii Live Commerce</string>
 	<key>CFBundleURLTypes</key>
@@ -71,7 +71,15 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb806849805556043</string>
+				<string>fb$(FACEBOOK_APP_ID)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.852200937424-b3p5a7pn8qp8g190p48gg5p74k8v80sl</string>
 			</array>
 		</dict>
 	</array>
@@ -84,6 +92,6 @@
 		<string>fbshareextension</string>
 	</array>
 	<key>GIDClientID</key>
-	<string>852200937424-b3p5a7pn8qp8g190p48gg5p74k8v80sl.apps.googleusercontent.com</string>
+	<string>$(GOOGLE_CLIENT_ID)</string>
 </dict>
 </plist>

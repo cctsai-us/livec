@@ -14,6 +14,21 @@ These credentials are referenced in [START_HERE.md](START_HERE.md) lines 60-62.
 
 ---
 
+## Running the API Server
+
+**Backend API** (from `backend/` directory):
+```bash
+cd ~/Documents/dev/live_commerce/backend
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Or simply:
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+---
+
 ### Social Login Providers by Market
 **Taiwan**:
 - LINE (primary)

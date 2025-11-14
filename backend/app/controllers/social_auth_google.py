@@ -45,6 +45,13 @@ async def handle_google_login(
     display_name = google_user_info.get("name")
     picture_url = google_user_info.get("picture")
 
+    # Validate required fields
+    if not google_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google ID token: missing user ID"
+        )
+
     # Check if social account exists
     result = await db.execute(
         select(SocialAccount).where(
@@ -67,9 +74,17 @@ async def handle_google_login(
         if isinstance(email_verified, str):
             email_verified = email_verified.lower() == "true"
 
+        # Determine display name safely
+        if display_name:
+            user_display_name = display_name
+        elif email:
+            user_display_name = email.split("@")[0]
+        else:
+            user_display_name = f"Google User {google_user_id[:8]}"
+
         user = User(
             username=f"google_{google_user_id[:16]}",
-            display_name=display_name or email.split("@")[0] if email else f"Google User {google_user_id[:8]}",
+            display_name=user_display_name,
             email=email,
             avatar_url=picture_url,
             user_type="viewer",
