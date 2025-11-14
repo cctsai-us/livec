@@ -23,6 +23,10 @@ python-multipart==0.0.6
 
 # HTTP Client
 httpx==0.26.0
+aiohttp==3.9.1
+
+# Phone number parsing (for SMS routing)
+phonenumbers==8.13.27
 
 # Cloudflare
 cloudflare==2.19.4

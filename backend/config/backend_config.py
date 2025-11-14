@@ -78,11 +78,21 @@ class BackendConfig:
     APPLE_TEAM_ID: Optional[str] = getattr(env_module, 'APPLE_TEAM_ID', None) or None
     APPLE_KEY_ID: Optional[str] = getattr(env_module, 'APPLE_KEY_ID', None) or None
 
-    # Email & SMS
+    # Email
     SENDGRID_API_KEY: Optional[str] = getattr(env_module, 'SENDGRID_API_KEY', None) or None
+
+    # SMS Providers - Twilio
     TWILIO_ACCOUNT_SID: Optional[str] = getattr(env_module, 'TWILIO_ACCOUNT_SID', None) or None
     TWILIO_AUTH_TOKEN: Optional[str] = getattr(env_module, 'TWILIO_AUTH_TOKEN', None) or None
     TWILIO_PHONE_NUMBER: Optional[str] = getattr(env_module, 'TWILIO_PHONE_NUMBER', None) or None
+
+    # SMS Providers - Taiwan
+    MITAKE_USERNAME: Optional[str] = getattr(env_module, 'MITAKE_USERNAME', None) or None
+    MITAKE_PASSWORD: Optional[str] = getattr(env_module, 'MITAKE_PASSWORD', None) or None
+    EVERY8D_USERNAME: Optional[str] = getattr(env_module, 'EVERY8D_USERNAME', None) or None
+    EVERY8D_PASSWORD: Optional[str] = getattr(env_module, 'EVERY8D_PASSWORD', None) or None
+    SMS_KING_USERNAME: Optional[str] = getattr(env_module, 'SMS_KING_USERNAME', None) or None
+    SMS_KING_PASSWORD: Optional[str] = getattr(env_module, 'SMS_KING_PASSWORD', None) or None
 
     # Storage
     S3_ENDPOINT_URL: str = getattr(env_module, 'S3_ENDPOINT_URL', '')
@@ -92,10 +102,13 @@ class BackendConfig:
     S3_REGION: str = getattr(env_module, 'S3_REGION', '')
 
     # SMS Configuration (AWS SNS)
-    SMS_PROVIDER: Optional[str] = getattr(env_module, 'SMS_PROVIDER', None) or None
     AWS_ACCESS_KEY_ID: Optional[str] = getattr(env_module, 'AWS_ACCESS_KEY_ID', None) or None
     AWS_SECRET_ACCESS_KEY: Optional[str] = getattr(env_module, 'AWS_SECRET_ACCESS_KEY', None) or None
     AWS_REGION: str = getattr(env_module, 'AWS_REGION', 'us-east-1')
+
+    # SMS Routing Configuration
+    SMS_COUNTRY_ROUTING: dict = getattr(env_module, 'SMS_COUNTRY_ROUTING', {})
+    SMS_FALLBACK_PROVIDER: str = getattr(env_module, 'SMS_FALLBACK_PROVIDER', 'twilio')
 
     @property
     def database_url(self) -> str:

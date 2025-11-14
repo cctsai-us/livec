@@ -1,7 +1,8 @@
 """
 Phone authentication API endpoints
 """
-from fastapi import APIRouter, HTTPException, Depends
+from datetime import datetime
+from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
@@ -17,10 +18,11 @@ from ...schemas.auth import (
     CountryResponse
 )
 from ...models import User, Country
-from ...core.security import create_access_token, create_refresh_token
-from ...core.sms import get_sms_provider
+from ...core.sms import create_sms_router_from_config
 from ...core.config import settings
+from config.backend_config import config
 from ...dependencies import get_redis
+from ...controllers.social_auth import parse_device_info, create_login_history, create_user_session
 
 router = APIRouter(prefix="/phone", tags=["phone-auth"])
 
@@ -99,15 +101,10 @@ async def send_verification_code(
         # Set rate limit (1 minute)
         await redis.setex(rate_limit_key, 60, "1")
 
-        # Send SMS via AWS SNS
-        sms_provider = get_sms_provider(
-            provider_type=settings.sms_provider,
-            aws_access_key_id=settings.aws_access_key_id,
-            aws_secret_access_key=settings.aws_secret_access_key,
-            region_name=settings.aws_region
-        )
+        # Send SMS via country-specific SMS router
+        sms_router = create_sms_router_from_config(config)
 
-        await sms_provider.send_verification_code(
+        await sms_router.send_verification_code(
             to_phone=request.phone_number,
             code=code,
             language=request.language
@@ -162,7 +159,8 @@ async def verify_code(
 
 @router.post("/register", response_model=TokenResponse)
 async def register_with_phone(
-    request: PhoneRegisterRequest,
+    register_data: PhoneRegisterRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     redis = Depends(get_redis)
 ):
@@ -171,7 +169,7 @@ async def register_with_phone(
     """
     try:
         # Verify the code
-        redis_key = f"phone_verification:{request.phone_number}"
+        redis_key = f"phone_verification:{register_data.phone_number}"
         stored_code = await redis.get(redis_key)
 
         if not stored_code:
@@ -180,7 +178,7 @@ async def register_with_phone(
                 detail="Verification code expired or not found"
             )
 
-        if stored_code.decode('utf-8') != request.verification_code:
+        if stored_code.decode('utf-8') != register_data.verification_code:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid verification code"
@@ -188,7 +186,7 @@ async def register_with_phone(
 
         # Check if phone number already registered
         result = await db.execute(
-            select(User).where(User.phone_number == request.phone_number)
+            select(User).where(User.phone_number == register_data.phone_number)
         )
         existing_user = result.scalar_one_or_none()
 
@@ -200,27 +198,28 @@ async def register_with_phone(
 
         # Validate gender if provided
         valid_genders = ["male", "female", "other", "prefer_not_to_say"]
-        if request.gender and request.gender not in valid_genders:
+        if register_data.gender and register_data.gender not in valid_genders:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid gender. Must be one of: {', '.join(valid_genders)}"
             )
 
         # Create display name from first + last name
-        display_name = f"{request.first_name} {request.last_name}".strip()
+        display_name = f"{register_data.first_name} {register_data.last_name}".strip()
 
         # Create new user
         new_user = User(
-            phone_number=request.phone_number,
-            email=request.email,
-            username=request.phone_number,  # Use phone as username
+            phone_number=register_data.phone_number,
+            email=register_data.email,
+            username=register_data.phone_number,  # Use phone as username
             display_name=display_name,
-            first_name=request.first_name,
-            last_name=request.last_name,
-            nickname=request.nickname,
-            gender=request.gender,
-            date_of_birth=request.date_of_birth,
-            is_active=True
+            first_name=register_data.first_name,
+            last_name=register_data.last_name,
+            nickname=register_data.nickname,
+            gender=register_data.gender,
+            date_of_birth=register_data.date_of_birth,
+            is_active=True,
+            last_login_at=datetime.utcnow()
         )
 
         db.add(new_user)
@@ -230,9 +229,19 @@ async def register_with_phone(
         # Delete verification code from Redis
         await redis.delete(redis_key)
 
-        # Generate tokens
-        access_token = create_access_token({"sub": str(new_user.id)})
-        refresh_token = create_refresh_token({"sub": str(new_user.id)})
+        # Parse device info
+        device_type, os_version, user_agent = parse_device_info(request, register_data.device_info)
+
+        # Log login history
+        await create_login_history(
+            db, new_user.id, "phone", register_data.phone_number,
+            request, device_type, os_version, user_agent
+        )
+
+        # Create session and generate tokens
+        access_token, refresh_token = await create_user_session(
+            db, new_user, request, device_type, user_agent
+        )
 
         return TokenResponse(
             access_token=access_token,

@@ -4,7 +4,7 @@ FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.v1 import streams, social_auth, phone_auth
+from .api.v1 import streams, social_auth, phone_auth, users
 from .db.redis_client import redis_client
 
 app = FastAPI(
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(streams.router, prefix="/api/v1", tags=["Live Streams"])
 app.include_router(social_auth.router, prefix="/api/v1")
 app.include_router(phone_auth.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
