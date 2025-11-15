@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { socialAuthService } from '../services/auth/SocialAuthService';
+import { SocialProvider } from '../services/auth/types';
 
 interface User {
   id: string;
@@ -15,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   user: User | null;
   login: (userData: User, token: string) => Promise<void>;
+  loginWithSocial: (provider: SocialProvider) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -31,10 +34,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
-  // Check for existing session on app start
+  // Initialize social auth service and check for existing session on app start
   useEffect(() => {
-    checkSession();
+    initializeAuth();
   }, []);
+
+  const initializeAuth = async () => {
+    try {
+      await socialAuthService.initialize();
+      await checkSession();
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      setIsLoading(false);
+    }
+  };
 
   const checkSession = async () => {
     try {
@@ -69,8 +82,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithSocial = async (provider: SocialProvider) => {
+    try {
+      console.log(`[AuthContext] Starting social login with ${provider}...`);
+
+      const result = await socialAuthService.loginWithProvider(provider);
+
+      // Store user and token using the standard login method
+      await login(result.user as User, result.appToken);
+
+      console.log('[AuthContext] Social login successful');
+    } catch (error: any) {
+      console.error('[AuthContext] Social login failed:', error);
+
+      // User-friendly error handling
+      if (error.code === 'USER_CANCELLED') {
+        // Don't throw for user cancellation, just log
+        console.log('[AuthContext] User cancelled login');
+        return;
+      }
+
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
+      // Logout from social provider if applicable
+      await socialAuthService.logout();
+
+      // Clear legacy tokens
       await Promise.all([
         AsyncStorage.removeItem(STORAGE_KEYS.USER),
         AsyncStorage.removeItem(STORAGE_KEYS.TOKEN),
@@ -102,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     user,
     login,
+    loginWithSocial,
     logout,
     updateUser,
   };

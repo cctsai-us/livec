@@ -7,7 +7,11 @@ import {
   TextInput,
   ScrollView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
+import { SocialProvider } from '../../services/auth/types';
 
 // Detect market based on locale (simplified for now)
 const getMarket = () => {
@@ -22,9 +26,12 @@ export default function LoginScreen({
   onLogin: () => void;
   onRegister: () => void;
 }) {
+  const { loginWithSocial } = useAuth();
   const [inputMode, setInputMode] = useState<'phone' | 'email'>('phone');
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const market = getMarket();
 
   // Social login providers based on market
@@ -43,10 +50,36 @@ export default function LoginScreen({
           { id: 'apple', name: 'Apple', icon: '', color: '#000' },
         ];
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    // In production, this would trigger OAuth flow
-    onLogin();
+  const handleSocialLogin = async (provider: string) => {
+    try {
+      setIsLoading(true);
+      setLoadingProvider(provider);
+
+      console.log(`[LoginScreen] Starting ${provider} login...`);
+      await loginWithSocial(provider as SocialProvider);
+
+      console.log('[LoginScreen] Login successful!');
+      // Navigation will happen automatically via AuthContext state change
+    } catch (error: any) {
+      console.error('[LoginScreen] Social login failed:', error);
+
+      // Show user-friendly error message
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (error.code === 'USER_CANCELLED') {
+        // User cancelled - don't show error
+        return;
+      } else if (error.code === 'BACKEND_EXCHANGE_FAILED') {
+        errorMessage = 'Unable to connect to server. Please check your internet connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      Alert.alert('Login Failed', errorMessage, [{ text: 'OK' }]);
+    } finally {
+      setIsLoading(false);
+      setLoadingProvider(null);
+    }
   };
 
   const handleLogin = () => {
@@ -71,10 +104,17 @@ export default function LoginScreen({
             key={provider.id}
             style={[styles.socialButton, { backgroundColor: provider.color }]}
             onPress={() => handleSocialLogin(provider.id)}
+            disabled={isLoading}
           >
-            <Text style={styles.socialIcon}>{provider.icon}</Text>
+            {loadingProvider === provider.id ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.socialIcon}>{provider.icon}</Text>
+            )}
             <Text style={styles.socialButtonText}>
-              Continue with {provider.name}
+              {loadingProvider === provider.id
+                ? 'Connecting...'
+                : `Continue with ${provider.name}`}
             </Text>
           </TouchableOpacity>
         ))}
