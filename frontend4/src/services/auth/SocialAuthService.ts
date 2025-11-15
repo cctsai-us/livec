@@ -9,6 +9,7 @@ import {
   UserProfile,
 } from './types';
 import { config } from '../../config/environment';
+import { DeviceInfoService } from '../DeviceInfoService';
 
 /**
  * Social authentication service orchestrator
@@ -101,13 +102,14 @@ export class SocialAuthService {
     socialAuthResult: SocialAuthResult
   ): Promise<BackendAuthResponse> {
     try {
+      // Collect device info
+      const deviceInfo = await DeviceInfoService.getDeviceInfo();
+
       const response = await axios.post(
-        `${config.apiBaseUrl}/auth/social/login`,
+        `${config.apiBaseUrl}/auth/social/${socialAuthResult.provider}`,
         {
-          provider: socialAuthResult.provider,
-          accessToken: socialAuthResult.token.accessToken,
-          idToken: socialAuthResult.token.idToken,
-          method: socialAuthResult.method,
+          access_token: socialAuthResult.token.accessToken,
+          device_info: deviceInfo,
         },
         {
           headers: {
@@ -116,12 +118,24 @@ export class SocialAuthService {
         }
       );
 
-      return response.data;
+      // Map backend response to our format
+      return {
+        appToken: response.data.access_token,
+        refreshToken: response.data.refresh_token,
+        user: {
+          id: response.data.user_id.toString(),
+          username: response.data.username,
+          name: response.data.display_name,
+          email: undefined,
+          avatar: undefined,
+          provider: socialAuthResult.provider,
+        },
+      };
     } catch (error: any) {
       console.error('[SocialAuthService] Backend token exchange failed:', error);
       throw {
         code: 'BACKEND_EXCHANGE_FAILED',
-        message: error.response?.data?.message || 'Failed to exchange token with backend',
+        message: error.response?.data?.detail || 'Failed to exchange token with backend',
         provider: socialAuthResult.provider,
         originalError: error,
       };

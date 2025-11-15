@@ -2,6 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import react_native_line
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -37,6 +38,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey : Any] = [:]
   ) -> Bool {
+    // Handle LINE SDK callback
+    if LineLogin.application(app, open: url, options: options) {
+      return true
+    }
+    // Fallback to React Native Linking
     return RCTLinkingManager.application(app, open: url, options: options)
   }
 }
